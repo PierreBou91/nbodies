@@ -1,0 +1,42 @@
+[package]
+name = "nbodies"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bevy = "0.16.1"
+# As recommended here: https://bevyengine.org/learn/book/getting-started/setup/
+# "Bevy's dependencies do a lot of trace logging that is not relevant for an end user. To improve your runtime performance, you can add the following to the [dependencies] section of your Cargo.toml. It will disable detailed log levels on compile time so that they do not need to be filtered out while your app is running."
+log = { version = "*", features = [
+    "max_level_debug",
+    "release_max_level_warn",
+] }
+rand = "0.9.1"
+bevy_flycam = "*"
+bevy_render = "0.16.1"
+
+[profile.dev]
+opt-level = 1
+# if compile times are too long, there are more info there:
+# https://bevyengine.org/learn/quick-start/getting-started/setup/
+
+# Enable a large amount of optimization in the dev profile for dependencies.
+[profile.dev.package."*"]
+opt-level = 3
+
+[profile.release]
+# Compile the entire crate as one unit.
+# Slows compile times, marginal improvements.
+codegen-units = 1
+# Do a second optimization pass over the entire program, including dependencies.
+# Slows compile times, marginal improvements.
+lto = "thin"
+
+# Optimize for size in the wasm-release profile to reduce load times and bandwidth usage on web.
+# See Bevy doc for additional wasm-specific settings: https://bevyengine.org/learn/quick-start/getting-started/setup/
+[profile.wasm-release]
+inherits = "release"
+# Optimize with size in mind (also try "z", sometimes it is better).
+# Slightly slows compile times, great improvements to file size and runtime performance.
+opt-level = "s"
+strip = "debuginfo"
